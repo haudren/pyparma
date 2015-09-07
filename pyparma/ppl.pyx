@@ -1,8 +1,9 @@
 import sys
 from libcpp cimport bool as cppbool
+from cpython.int cimport PyInt_AS_LONG
+from cpython.long cimport PyLong_AsLong
 
-from mpz cimport mpz_t, mpz_init, mpz_set, mpz_set_si, mpz_set_ui,\
-                 mpz_get_si, mpz_get_ui
+from mpz cimport mpz_t, mpz_init, mpz_set, mpz_set_si, mpz_get_si
 
 cdef extern from "gmpxx.h":
     cdef cppclass mpz_class:
@@ -1042,7 +1043,7 @@ cdef class Polyhedron(object):
         mpz_set(Int_sup_d, sup_d.get_mpz_t())
 
         if rc:
-            return { 'bounded':True, 'sup_n':mpz_get_ui(Int_sup_n), 'sup_d':mpz_get_ui(Int_sup_d), 'maximum':maximum, 'generator':g }
+            return { 'bounded':True, 'sup_n':mpz_get_si(Int_sup_n), 'sup_d':mpz_get_si(Int_sup_d), 'maximum':maximum, 'generator':g }
         else:
             return { 'bounded':False }
 
@@ -1123,7 +1124,7 @@ cdef class Polyhedron(object):
         mpz_set(Int_inf_d, inf_d.get_mpz_t())
 
         if rc:
-            return { 'bounded':True, 'inf_n':mpz_get_ui(Int_inf_n), 'inf_d':mpz_get_ui(Int_inf_d), 'minimum':minimum, 'generator':g }
+            return { 'bounded':True, 'inf_n':mpz_get_si(Int_inf_n), 'inf_d':mpz_get_si(Int_inf_d), 'minimum':minimum, 'generator':g }
         else:
             return { 'bounded':False }
 
@@ -2814,8 +2815,12 @@ cdef class Linear_Expression(object):
             self.thisptr = new PPL_Linear_Expression(e.thisptr[0])
             return
         try:
-            if isinstance(arg, int) or isinstance(arg, long):
-                mpz_set_ui(self.temp, arg)
+            if isinstance(arg, int):
+                mpz_set_si(self.temp, PyInt_AS_LONG(arg))
+                self.thisptr = new PPL_Linear_Expression(PPL_Coefficient(self.temp))
+                return
+            if isinstance(arg, long):
+                mpz_set_si(self.temp, PyLong_AsLong(arg))
                 self.thisptr = new PPL_Linear_Expression(PPL_Coefficient(self.temp))
                 return
         except:
@@ -2881,9 +2886,9 @@ cdef class Linear_Expression(object):
         """
         cdef mpz_t c
         mpz_init(c)
-        mpz_set_ui(c, 0)
+        mpz_set_si(c, 0)
         mpz_set(c, self.thisptr.coefficient(v.thisptr[0]).get_mpz_t())
-        return mpz_get_ui(c)
+        return mpz_get_si(c)
 
 
     def coefficients(self):
@@ -2904,10 +2909,10 @@ cdef class Linear_Expression(object):
         """
         cdef int d = self.space_dimension()
         cdef int i
-        cdef unsigned long int c
+        cdef signed long int c
         coeffs = []
         for i in range(0,d):
-            c = mpz_get_ui(self.thisptr.coefficient(PPL_Variable(i)).get_mpz_t())
+            c = mpz_get_si(self.thisptr.coefficient(PPL_Variable(i)).get_mpz_t())
             coeffs.append(c)
         return tuple(coeffs)
 
@@ -2926,8 +2931,8 @@ cdef class Linear_Expression(object):
             sage: Linear_Expression(10).inhomogeneous_term()
             10
         """
-        cdef unsigned long int c
-        c = mpz_get_ui(self.thisptr.inhomogeneous_term().get_mpz_t())
+        cdef signed long int c
+        c = mpz_get_si(self.thisptr.inhomogeneous_term().get_mpz_t())
         return c
 
 
@@ -3511,7 +3516,7 @@ cdef class Generator(object):
         cdef Linear_Expression e = Linear_Expression(expression)
         cdef mpz_t d
         mpz_init(d)
-        mpz_set_ui(d, divisor)
+        mpz_set_si(d, divisor)
         # This does not work as Cython gets confused by the private default ctor
         #   return _wrap_Generator(PPL_closure_point(e.thisptr[0], PPL_Coefficient(d.value)))
         # workaround follows
@@ -3772,9 +3777,9 @@ cdef class Generator(object):
         """
         cdef mpz_t c
         mpz_init(c)
-        mpz_set_ui(c, 0)
+        mpz_set_si(c, 0)
         mpz_set(c, self.thisptr.coefficient(v.thisptr[0]).get_mpz_t())
-        return mpz_get_ui(c)
+        return mpz_get_si(c)
 
 
     def coefficients(self):
@@ -3800,11 +3805,11 @@ cdef class Generator(object):
         cdef int i
         cdef mpz_t c
         mpz_init(c)
-        mpz_set_ui(c, 0)
+        mpz_set_si(c, 0)
         coeffs = []
         for i in range(0,d):
             mpz_set(c, self.thisptr.coefficient(PPL_Variable(i)).get_mpz_t())
-            coeffs.append(mpz_get_ui(c))
+            coeffs.append(mpz_get_si(c))
         return tuple(coeffs)
 
 
@@ -3835,9 +3840,9 @@ cdef class Generator(object):
         """
         cdef mpz_t c
         mpz_init(c)
-        mpz_set_ui(c, 0)
+        mpz_set_si(c, 0)
         mpz_set(c, self.thisptr.divisor().get_mpz_t())
-        return mpz_get_ui(c)
+        return mpz_get_si(c)
 
 
     def is_equivalent_to(self, Generator g):
@@ -4711,9 +4716,9 @@ cdef class Constraint(object):
         """
         cdef mpz_t c
         mpz_init(c)
-        mpz_set_ui(c, 0)
+        mpz_set_si(c, 0)
         mpz_set(c, self.thisptr.coefficient(v.thisptr[0]).get_mpz_t())
-        return mpz_get_ui(c)
+        return mpz_get_si(c)
 
 
     def coefficients(self):
@@ -4739,11 +4744,11 @@ cdef class Constraint(object):
         cdef int i
         cdef mpz_t c
         mpz_init(c)
-        mpz_set_ui(c, 0)
+        mpz_set_si(c, 0)
         coeffs = []
         for i in range(0,d):
             mpz_set(c, self.thisptr.coefficient(PPL_Variable(i)).get_mpz_t())
-            coeffs.append(mpz_get_ui(c))
+            coeffs.append(mpz_get_si(c))
         return tuple(coeffs)
 
 
@@ -4767,9 +4772,9 @@ cdef class Constraint(object):
         """
         cdef mpz_t c
         mpz_init(c)
-        mpz_set_ui(c, 0)
+        mpz_set_si(c, 0)
         mpz_set(c, self.thisptr.inhomogeneous_term().get_mpz_t())
-        return mpz_get_ui(c)
+        return mpz_get_si(c)
 
 
     def is_tautological(self):
