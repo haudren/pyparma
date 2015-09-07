@@ -43,12 +43,33 @@ class Polyhedron(object):
     def add_point(self, point):
         add_point(point, self.poly)
 
+def lcm(iterable):
+    return reduce(_lcm, iterable)
+
+def _lcm(a, b):
+    return a*b // _gcd(a, b)
+
+def _gcd(a, b):
+    while b:
+        a, b = b, a % b
+    return a
+
+def reduce_lcm(iterable):
+    denoms = [c.denominator for c in iterable]
+    nums = [c.numerator for c in iterable]
+    d = lcm(denoms)
+    coords = [d*n//de for n, de in zip(nums, denoms)]
+    return coords, d
+
 #Storage format b | A where b + Ax >= 0
 def from_hrep(hrep):
     cs = Constraint_System()
     for l in hrep:
-        offset = l[0]
-        coeffs = l[1:]
+        if isinstance(l[0], Fraction):
+            scaled, _ = reduce_lcm(l)
+            offset, coeffs = scaled[0], scaled[1:]
+        else:
+            offset, coeffs = l[0], l[1:]
         #We should also convert from Fraction to integer
         #ex = Linear_Expression(coeffs*lcm, offset*lcm)
         ex = Linear_Expression(coeffs, offset)
@@ -63,12 +84,18 @@ def add_ineq(line, poly):
 def from_vrep(vrep):
     gs = Generator_System()
     for l in vrep:
-        if l[0] == 1:
-            ex = Linear_Expression(l[1:], 0)
+        t, coords = l[0], l[1:]
+        if t == 1:
+            if isinstance(coords[0], int) or isinstance(coords[0], long):
+                d = 1
+            elif isinstance(coords[0], Fraction):
+                coords, d = reduce_lcm(coords)
+            ex = Linear_Expression(coords, 0)
+            print ex
             #TODO : Denominator stuff
             #gs.insert(point(ex*lcm, lcm))
             #TODO : Case when we have non-points i.e. rays/lines
-            gs.insert(point(ex))
+            gs.insert(point(ex, d))
         else:
             raise ValueError("Sorry, the wrapper does not implement rays/lines")
     return C_Polyhedron(gs)
