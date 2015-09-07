@@ -11,9 +11,10 @@ setup(
     url="https://github.com/haudren/pyparma",
     author="Hervé Audren",
     license="GPL",
+    packages=["pyparma", "pyparma/utils"],
     cmdclass={'build_ext': build_ext},
     ext_modules=[
-        Extension("ppl",
+        Extension("pyparma/ppl",
                   sources=["pyparma/ppl.pyx", "pyparma/ppl_shim.cc"],
                   libraries=["ppl", "gmpxx"],
                   language="c++",
