@@ -22,11 +22,13 @@ class Polyhedron(object):
         gs = self.poly.minimized_generators()
         lines = []
         for g in gs:
-            d = g.divisor()
+            #Divisor is only defined for points
+            d = 1
             if g.is_point():
                 t = 1
+                d = g.divisor()
             else:
-                t = -1
+                t = 0
 
             if d == 1:
                 lines.append([t]+list(g.coefficients()))
