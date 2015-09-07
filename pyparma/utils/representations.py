@@ -1,5 +1,5 @@
-from ppl import C_Polyhedron, Constraint_System, Linear_Expression,\
-                Generator_System, point
+from pyparma import C_Polyhedron, Constraint_System, Linear_Expression,\
+                    Generator_System, point
 
 import numpy as np
 from fractions import Fraction
@@ -23,10 +23,15 @@ class Polyhedron(object):
         lines = []
         for g in gs:
             d = g.divisor()
-            if d == 1:
-                lines.append([1]+list(g.coefficients()))
+            if g.is_point():
+                t = 1
             else:
-                lines.append([Fraction(1)]+[Fraction(c, d)
+                t = -1
+
+            if d == 1:
+                lines.append([t]+list(g.coefficients()))
+            else:
+                lines.append([Fraction(t)]+[Fraction(c, d)
                                             for c in g.coefficients()])
         return np.vstack(lines)
 
@@ -60,6 +65,7 @@ def from_vrep(vrep):
             ex = Linear_Expression(l[1:], 0)
             #TODO : Denominator stuff
             #gs.insert(point(ex*lcm, lcm))
+            #TODO : Case when we have non-points i.e. rays/lines
             gs.insert(point(ex))
         else:
             raise ValueError("Sorry, the wrapper does not implement rays/lines")
