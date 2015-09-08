@@ -18,7 +18,7 @@
 
 #include <Python.h>
 #include <longintrepr.h>
-#include "mpz_pylong.h"
+#include <gmp.h>
 
 /* This code assumes that SHIFT < GMP_NUMB_BITS */
 #if PyLong_SHIFT >= GMP_NUMB_BITS

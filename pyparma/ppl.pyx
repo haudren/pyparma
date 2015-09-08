@@ -4,7 +4,8 @@ from cpython.int cimport PyInt_AS_LONG, PyInt_Check
 from cpython.long cimport PyLong_AsLong, PyLong_Check
 from cpython.ref cimport PyObject
 
-from mpz cimport mpz_t, mpz_init, mpz_set, mpz_set_si, mpz_get_si, mpz_set_PyIntOrLong, mpz_get_PyLong, mpz_ptr
+from mpz cimport mpz_t, mpz_init, mpz_set, mpz_set_si, mpz_get_si, mpz_ptr,\
+                 mpz_set_PyIntOrLong, mpz_get_PyLong
 
 cdef extern from "gmpxx.h":
     cdef cppclass mpz_class:

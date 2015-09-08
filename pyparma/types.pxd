@@ -1,7 +1,7 @@
-#from cython.ref import PyObject
-from python_ref cimport PyObject
+from cpython.ref cimport PyObject
+from cpython.long cimport *
+#from python_ref cimport PyObject
 #from cpython.ref import PyObject
-from python_long cimport *
 from libc.stdio cimport FILE
 
 cdef extern from "gmp.h":
@@ -57,5 +57,5 @@ cdef extern from "gmp.h":
     cdef mpz_t* address_of_mpz "&"(mpz_t x)
 
 cdef extern from "mpz_pylong/mpz_pylong.h":
-    cdef void mpz_set_PyIntOrLong(mpz_ptr z, PyObject* lsrc)
-    cdef PyObject* mpz_get_PyLong(mpz_ptr z)
+    void mpz_set_PyIntOrLong(mpz_ptr z, PyObject* lsrc)
+    PyObject* mpz_get_PyLong(mpz_ptr z)
