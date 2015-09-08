@@ -33,7 +33,7 @@ class Polyhedron(object):
             if d == 1:
                 lines.append([t]+list(g.coefficients()))
             else:
-                lines.append([Fraction(t)]+[Fraction(c, d)
+                lines.append([t]+[Fraction(c, d)
                                             for c in g.coefficients()])
         return np.vstack(lines)
 
@@ -91,9 +91,6 @@ def from_vrep(vrep):
             elif isinstance(coords[0], Fraction):
                 coords, d = reduce_lcm(coords)
             ex = Linear_Expression(coords, 0)
-            print ex
-            #TODO : Denominator stuff
-            #gs.insert(point(ex*lcm, lcm))
             #TODO : Case when we have non-points i.e. rays/lines
             gs.insert(point(ex, d))
         else:

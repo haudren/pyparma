@@ -14,12 +14,19 @@ setup(
     packages=["pyparma", "pyparma/utils"],
     cmdclass={'build_ext': build_ext},
     ext_modules=[
+        Extension("pyparma.mpz_pylong",
+                  sources=["pyparma/mpz_pylong/mpz_pylong.c"],
+                  libraries=["gmp"],
+                  language="c++",
+                  extra_compile_args=["-fPIC"]
+                  ),
         Extension("pyparma.ppl",
                   sources=["pyparma/ppl.pyx", "pyparma/ppl_shim.cc"],
-                  libraries=["ppl", "gmpxx"],
+                  libraries=["ppl", "gmpxx", "mpz_pylong"],
                   language="c++",
                   extra_compile_args=["-I/usr/include/x86_64-linux-gnu/"],
-                  extra_link_args=["-L/usr/lib/x86_64-linux-gnu/"]
-                 )
+                  extra_link_args=["-L/usr/lib/x86_64-linux-gnu/",
+                                   "-L/home/herve/dev/pyparma/build/lib.linux-x86_64-2.7/pyparma"]
+                  )
                 ]
 )

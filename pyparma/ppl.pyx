@@ -1,9 +1,10 @@
 import sys
 from libcpp cimport bool as cppbool
-from cpython.int cimport PyInt_AS_LONG
-from cpython.long cimport PyLong_AsLong
+from cpython.int cimport PyInt_AS_LONG, PyInt_Check
+from cpython.long cimport PyLong_AsLong, PyLong_Check
+from cpython.ref cimport PyObject
 
-from mpz cimport mpz_t, mpz_init, mpz_set, mpz_set_si, mpz_get_si
+from mpz cimport mpz_t, mpz_init, mpz_set, mpz_set_si, mpz_get_si, mpz_set_PyIntOrLong, mpz_get_PyLong, mpz_ptr
 
 cdef extern from "gmpxx.h":
     cdef cppclass mpz_class:
@@ -2777,7 +2778,6 @@ cdef class Linear_Expression(object):
     cdef PPL_Linear_Expression *thisptr
     cdef mpz_t temp
 
-
     def __cinit__(self, *args):
         """
         The Cython constructor.
@@ -2815,15 +2815,12 @@ cdef class Linear_Expression(object):
             self.thisptr = new PPL_Linear_Expression(e.thisptr[0])
             return
         try:
-            if isinstance(arg, int):
-                mpz_set_si(self.temp, PyInt_AS_LONG(arg))
-                self.thisptr = new PPL_Linear_Expression(PPL_Coefficient(self.temp))
-                return
-            if isinstance(arg, long):
-                mpz_set_si(self.temp, PyLong_AsLong(arg))
+            if isinstance(arg, int) or isinstance(arg, long):
+                mpz_set_PyIntOrLong(self.temp, <PyObject*>arg)
                 self.thisptr = new PPL_Linear_Expression(PPL_Coefficient(self.temp))
                 return
         except:
+            print "Error has occured..."
             print sys.exc_info()[0]
             pass
         raise ValueError, 'Cannot initialize with '+str(args)+'. Note: '+str(arg)
@@ -2884,11 +2881,19 @@ cdef class Linear_Expression(object):
             sage: e.coefficient(x)
             3
         """
-        cdef mpz_t c
-        mpz_init(c)
-        mpz_set_si(c, 0)
-        mpz_set(c, self.thisptr.coefficient(v.thisptr[0]).get_mpz_t())
-        return mpz_get_si(c)
+        #cdef PyObject* value
+        #cdef mpz_ptr p
+        #p = <mpz_ptr>self.thisptr.coefficient(v.thisptr[0]).get_mpz_t()
+        #value = mpz_get_PyIntOrLong(p)
+        #return <object>value
+
+        #TODO
+        cdef PyObject* ptr
+        #mpz_init(c)
+        #mpz_set_si(c, 0)
+        #mpz_set(c, self.thisptr.coefficient(v.thisptr[0]).get_mpz_t())
+        ptr = mpz_get_PyLong(self.thisptr.coefficient(v.thisptr[0]).get_mpz_t())
+        return <object>ptr
 
 
     def coefficients(self):
@@ -2909,11 +2914,15 @@ cdef class Linear_Expression(object):
         """
         cdef int d = self.space_dimension()
         cdef int i
-        cdef signed long int c
+        cdef PyObject* ptr
+        #cdef mpz_t c
+        #mpz_init(c)
         coeffs = []
         for i in range(0,d):
-            c = mpz_get_si(self.thisptr.coefficient(PPL_Variable(i)).get_mpz_t())
-            coeffs.append(c)
+            ptr = mpz_get_PyLong(self.thisptr.coefficient(PPL_Variable(i)).get_mpz_t())
+            coeffs.append(<object>ptr)
+            #mpz_set(c, self.thisptr.coefficient(PPL_Variable(i)).get_mpz_t())
+            #coeffs.append(mpz_get_si(c))
         return tuple(coeffs)
 
 
@@ -2931,9 +2940,9 @@ cdef class Linear_Expression(object):
             sage: Linear_Expression(10).inhomogeneous_term()
             10
         """
-        cdef signed long int c
-        c = mpz_get_si(self.thisptr.inhomogeneous_term().get_mpz_t())
-        return c
+        cdef PyObject* c
+        c = mpz_get_PyLong(self.thisptr.inhomogeneous_term().get_mpz_t())
+        return <object>c
 
 
     def is_zero(self):
@@ -3153,16 +3162,21 @@ cdef class Linear_Expression(object):
             8*x1
         """
         cdef Linear_Expression e
-        cdef int c
+        #cdef mpz_ptr c
+        cdef mpz_t value
+        cdef PyObject* ptr
+        cdef object f
+        mpz_init(value)
         if isinstance(self, Linear_Expression):
             e = <Linear_Expression>self
-            c = int(other)
+            ptr = <PyObject*>other
+            mpz_set_PyIntOrLong(value, ptr)
         else:
             e = <Linear_Expression>other
-            c = int(self)
+            mpz_set_PyIntOrLong(value, <PyObject*>self)
 
         cdef Linear_Expression result = Linear_Expression()
-        result.thisptr[0] = e.thisptr[0] * PPL_Coefficient(c)
+        result.thisptr[0] = e.thisptr[0] * PPL_Coefficient(value)
         return result
 
 
@@ -3462,7 +3476,7 @@ cdef class Generator(object):
         cdef Linear_Expression e = Linear_Expression(expression)
         cdef mpz_t d
         mpz_init(d)
-        mpz_set_si(d, divisor)
+        mpz_set_PyIntOrLong(d, <PyObject*>divisor)
         # This does not work as Cython gets confused by the private default ctor
         #   return _wrap_Generator(PPL_point(e.thisptr[0], PPL_Coefficient(d.value)))
         # workaround follows
@@ -3775,11 +3789,9 @@ cdef class Generator(object):
             sage: line.coefficient(x)
             1
         """
-        cdef mpz_t c
-        mpz_init(c)
-        mpz_set_si(c, 0)
-        mpz_set(c, self.thisptr.coefficient(v.thisptr[0]).get_mpz_t())
-        return mpz_get_si(c)
+        cdef PyObject* c
+        c = mpz_get_PyLong(self.thisptr.coefficient(v.thisptr[0]).get_mpz_t())
+        return <object>c
 
 
     def coefficients(self):
@@ -3803,13 +3815,11 @@ cdef class Generator(object):
         """
         cdef int d = self.space_dimension()
         cdef int i
-        cdef mpz_t c
-        mpz_init(c)
-        mpz_set_si(c, 0)
+        cdef PyObject* c
         coeffs = []
         for i in range(0,d):
-            mpz_set(c, self.thisptr.coefficient(PPL_Variable(i)).get_mpz_t())
-            coeffs.append(mpz_get_si(c))
+            c = mpz_get_PyLong(self.thisptr.coefficient(PPL_Variable(i)).get_mpz_t())
+            coeffs.append(<object>(c))
         return tuple(coeffs)
 
 
@@ -3838,11 +3848,9 @@ cdef class Generator(object):
             ValueError: PPL::Generator::divisor():
             *this is neither a point nor a closure point.
         """
-        cdef mpz_t c
-        mpz_init(c)
-        mpz_set_si(c, 0)
-        mpz_set(c, self.thisptr.divisor().get_mpz_t())
-        return mpz_get_si(c)
+        cdef PyObject* c
+        c = mpz_get_PyLong(self.thisptr.divisor().get_mpz_t())
+        return <object>c
 
 
     def is_equivalent_to(self, Generator g):
