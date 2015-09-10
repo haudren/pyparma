@@ -5,6 +5,14 @@ mpz commes from [gmpy2][3] library, which was already adapted from sagemath.
 
 This is GPL-licensed, as is Sagemath.
 
+To build it you need to have both the *ppl* and *gmp* libraries installed in a
+place where distutils can find it. Then,
+```
+python setup.py build && python setup.py install
+```
+If you have trouble, try adding the desired paths to library_dirs in setup.py
+as a keyword argument to the Extension constructor.
+
 To use it, simply import the module, create a matrix of Fractions or integers,
 and compute the double description !
 ```python
