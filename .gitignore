@@ -1,1 +1,4 @@
 pyparma/ppl.cpp
+MANIFEST
+dist
+*.egg*
