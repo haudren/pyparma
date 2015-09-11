@@ -8,8 +8,10 @@ class Polyhedron(object):
     def __init__(self, **kwargs):
         if "hrep" in kwargs:
             self.poly = from_hrep(kwargs["hrep"])
+            return
         if "vrep" in kwargs:
             self.poly = from_vrep(kwargs["vrep"])
+            return
 
     def hrep(self):
         cs = self.poly.minimized_constraints()
