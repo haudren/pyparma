@@ -4,6 +4,10 @@ from pyparma import C_Polyhedron, Constraint_System, Linear_Expression,\
 import numpy as np
 from fractions import Fraction
 
+_is_fraction = np.vectorize(lambda x: isinstance(x, Fraction))
+_is_int = np.vectorize(lambda x: isinstance(x, int))
+_is_long = np.vectorize(lambda x: isinstance(x, long))
+
 class Polyhedron(object):
     def __init__(self, **kwargs):
         if "hrep" in kwargs:
@@ -42,8 +46,14 @@ class Polyhedron(object):
     def add_ineq(self, line):
         add_ineq(line, self.poly)
 
-    def add_point(self, point):
-        add_point(point, self.poly)
+    def add_generator(self, point):
+        add_generator(point, self.poly)
+
+def is_int_long(array):
+    return _is_int(array).all() or _is_long(array).all()
+
+def is_fraction(array):
+    return _is_fraction(array).all()
 
 def lcm(iterable):
     return reduce(_lcm, iterable)
@@ -64,19 +74,23 @@ def reduce_lcm(iterable):
     return coords, d
 
 def ex_from_line(l):
-    if isinstance(l[0], Fraction):
+    if is_int_long(l):
+        offset, coeffs = l[0], l[1:]
+    elif is_fraction(l):
         scaled, _ = reduce_lcm(l)
         offset, coeffs = scaled[0], scaled[1:]
     else:
-        offset, coeffs = l[0], l[1:]
+        raise ValueError("All values on a line should have the same type")
     return Linear_Expression(coeffs, offset)
 
 def gen_from_line(l):
     t, coords = l[0], l[1:]
-    if isinstance(coords[0], int) or isinstance(coords[0], long):
+    if is_int_long(coords):
         d = 1
-    elif isinstance(coords[0], Fraction):
+    elif is_fraction(coords):
         coords, d = reduce_lcm(coords)
+    else:
+        raise ValueError("All values on a line should have the same type")
     ex = Linear_Expression(coords, 0)
 
     if t == 1:
@@ -103,6 +117,6 @@ def from_vrep(vrep):
         gs.insert(gen_from_line(l))
     return C_Polyhedron(gs)
 
-def add_point(point, poly):
-    ex = Linear_Expression(point, 0)
-    poly.add_generator(point(ex))
+def add_generator(point, poly):
+    p = gen_from_line(point)
+    poly.add_generator(p)
