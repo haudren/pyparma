@@ -1,0 +1,38 @@
+These are Python bindings to the `Parma Polyhedra
+Library <http://bugseng.com/products/ppl/>`__. They were extracted from
+the `sagemath <http://www.sagemath.org/>`__ project, in order to be used
+in non-sage projects. Additionally, the functions to convert unlimited
+precision integers between python and mpz commes from
+`gmpy2 <https://pypi.python.org/pypi/gmpy2/2.0.7>`__ library, which was
+already adapted from sagemath.
+
+This is GPL-licensed, as is Sagemath.
+
+To build it you need to have both the *ppl* and *gmp* libraries
+installed in a place where distutils can find it. Then,
+
+::
+
+    python setup.py build && python setup.py install
+
+If you have trouble, try adding the desired paths to library\_dirs in
+setup.py as a keyword argument to the Extension constructor.
+
+To use it, simply import the module, create a matrix of Fractions or
+integers, and compute the double description !
+
+.. code:: python
+
+    from pyparma import Polyhedron
+    import numpy as np
+    from fractions import Fraction
+
+    fractionize = np.vectorize(lambda x: Fraction(str(x)))
+    A = fractionize(np.random.rand(50,3))
+    poly = Polyhedron(hrep=A)
+    print poly.hrep()
+
+Both H-representation and V-representation follow the CDD format i.e.: -
+H\_rep = [b \| A] where the polyhedron is defined by b + A x >= 0 -
+V\_rep = [t \| V] where V are the stacked vertices (Horizontal vectors)
+and t is the type: 1 for points, 0 for rays/lines.
