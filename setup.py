@@ -17,7 +17,7 @@ classif = ['Development Status :: 3 - Alpha',
 
 setup(
     name="pyparma",
-    version="0.1.0",
+    version="0.2.0",
     description="Bindings to the parma polyhedra library,\
                  allowing to use double description from Python",
     long_description=long_desc,
