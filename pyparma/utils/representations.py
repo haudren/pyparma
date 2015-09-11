@@ -1,5 +1,5 @@
 from pyparma import C_Polyhedron, Constraint_System, Linear_Expression,\
-                    Generator_System, point, line
+                    Generator_System, point, ray
 
 import numpy as np
 from fractions import Fraction
@@ -82,7 +82,7 @@ def gen_from_line(l):
     if t == 1:
         return point(ex, d)
     elif t == 0:
-        return line(ex)
+        return ray(ex)
 
 #Storage format b | A where b + Ax >= 0
 def from_hrep(hrep):
