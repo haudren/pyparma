@@ -29,6 +29,10 @@ setup(
     packages=["pyparma", "pyparma/utils"],
     cmdclass={'build_ext': build_ext},
     ext_modules=[
+        Extension("pyparma.pylong",
+            sources=["pyparma/pylong.pyx"],
+            libraries=["gmp", "gmpxx"]
+                  ),
         Extension("pyparma.ppl",
             sources=["pyparma/ppl.pyx",
                      "pyparma/ppl_shim.cc",

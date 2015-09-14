@@ -7,6 +7,8 @@ from cpython.ref cimport PyObject
 from mpz cimport mpz_t, mpz_init, mpz_set, mpz_set_si, mpz_get_si, mpz_ptr,\
                  mpz_set_PyIntOrLong, mpz_get_PyLong
 
+from pylong cimport mpz_get_pyintlong, mpz_set_pylong
+
 cdef extern from "gmpxx.h":
     cdef cppclass mpz_class:
         mpz_class()
@@ -2890,12 +2892,13 @@ cdef class Linear_Expression(object):
 
         #TODO
         #cdef PyObject* ptr
-        cdef object c
         #mpz_init(c)
         #mpz_set_si(c, 0)
         #mpz_set(c, self.thisptr.coefficient(v.thisptr[0]).get_mpz_t())
-        c = <object>mpz_get_PyLong(self.thisptr.coefficient(v.thisptr[0]).get_mpz_t())
-        return c
+        #cdef object c
+        #c = <object>mpz_get_PyLong(self.thisptr.coefficient(v.thisptr[0]).get_mpz_t())
+        #return c
+        return mpz_get_pyintlong(self.thisptr.coefficient(v.thisptr[0]).get_mpz_t())
 
 
     def coefficients(self):

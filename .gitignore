@@ -1,4 +1,5 @@
 pyparma/ppl.cpp
+pyparma/pylong.c
 MANIFEST
 dist
 *.egg*
