@@ -2889,12 +2889,13 @@ cdef class Linear_Expression(object):
         #return <object>value
 
         #TODO
-        cdef PyObject* ptr
+        #cdef PyObject* ptr
+        cdef object c
         #mpz_init(c)
         #mpz_set_si(c, 0)
         #mpz_set(c, self.thisptr.coefficient(v.thisptr[0]).get_mpz_t())
-        ptr = mpz_get_PyLong(self.thisptr.coefficient(v.thisptr[0]).get_mpz_t())
-        return <object>ptr
+        c = <object>mpz_get_PyLong(self.thisptr.coefficient(v.thisptr[0]).get_mpz_t())
+        return c
 
 
     def coefficients(self):
@@ -4723,12 +4724,9 @@ cdef class Constraint(object):
             sage: ineq.coefficient(x)
             3
         """
-        cdef mpz_t c
-        mpz_init(c)
-        mpz_set_si(c, 0)
-        mpz_set(c, self.thisptr.coefficient(v.thisptr[0]).get_mpz_t())
-        return mpz_get_si(c)
-
+        cdef PyObject* ptr
+        ptr = mpz_get_PyLong(self.thisptr.coefficient(v.thisptr[0]).get_mpz_t())
+        return <object>ptr
 
     def coefficients(self):
         """
@@ -4751,13 +4749,11 @@ cdef class Constraint(object):
         """
         cdef int d = self.space_dimension()
         cdef int i
-        cdef mpz_t c
-        mpz_init(c)
-        mpz_set_si(c, 0)
+        cdef PyObject* ptr
         coeffs = []
         for i in range(0,d):
-            mpz_set(c, self.thisptr.coefficient(PPL_Variable(i)).get_mpz_t())
-            coeffs.append(mpz_get_si(c))
+            ptr = mpz_get_PyLong(self.thisptr.coefficient(PPL_Variable(i)).get_mpz_t())
+            coeffs.append(<object>(ptr))
         return tuple(coeffs)
 
 
@@ -4779,11 +4775,9 @@ cdef class Constraint(object):
             sage: ineq.inhomogeneous_term()
             1
         """
-        cdef mpz_t c
-        mpz_init(c)
-        mpz_set_si(c, 0)
-        mpz_set(c, self.thisptr.inhomogeneous_term().get_mpz_t())
-        return mpz_get_si(c)
+        cdef PyObject* ptr
+        ptr = mpz_get_PyLong(self.thisptr.inhomogeneous_term().get_mpz_t())
+        return <object>ptr
 
 
     def is_tautological(self):
