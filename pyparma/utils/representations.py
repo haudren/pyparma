@@ -8,6 +8,11 @@ _is_fraction = np.vectorize(lambda x: isinstance(x, Fraction))
 _is_int = np.vectorize(lambda x: isinstance(x, int))
 _is_long = np.vectorize(lambda x: isinstance(x, long))
 
+fractionize = np.vectorize(lambda x: Fraction(str(x)))
+floatize = np.vectorize(lambda x: float(x))
+intize = np.vectorize(lambda x: int(x))
+longize = np.vectorize(lambda x: long(x))
+
 class Polyhedron(object):
     def __init__(self, **kwargs):
         if "hrep" in kwargs:
