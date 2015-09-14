@@ -21,6 +21,12 @@ class Polyhedron(object):
         if "vrep" in kwargs:
             self.poly = from_vrep(kwargs["vrep"])
             return
+        if "poly" in kwargs:
+            assert(isinstance(kwargs["poly"], C_Polyhedron))
+            self.poly = kwargs["poly"]
+        else:
+            raise ValueError("Please provide a H-rep, V-rep or\
+                              C_Polyhedron")
 
     def hrep(self):
         cs = self.poly.minimized_constraints()
@@ -53,6 +59,9 @@ class Polyhedron(object):
 
     def add_generator(self, point):
         add_generator(point, self.poly)
+
+    def copy(self):
+        return Polyhedron(poly=C_Polyhedron(self.poly))
 
 def is_int_long(array):
     return _is_int(array).all() or _is_long(array).all()
