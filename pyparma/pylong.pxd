@@ -9,4 +9,5 @@ cdef extern from *:
 cdef mpz_get_pylong(mpz_srcptr z)
 cdef mpz_get_pyintlong(mpz_srcptr z)
 cdef int mpz_set_pylong(mpz_ptr z, L) except -1
+cdef int mpz_set_pyintlong(mpz_ptr z, val) except -1
 cdef Py_hash_t mpz_pythonhash(mpz_srcptr z)
