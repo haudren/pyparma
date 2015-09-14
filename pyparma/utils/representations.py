@@ -93,17 +93,19 @@ def reduce_lcm(iterable):
     return coords, d
 
 def ex_from_line(l):
+    line = l.squeeze()
     if is_int_long(l):
-        offset, coeffs = l[0], l[1:]
+        offset, coeffs = line[0], line[1:]
     elif is_fraction(l):
-        scaled, _ = reduce_lcm(l)
+        scaled, _ = reduce_lcm(line)
         offset, coeffs = scaled[0], scaled[1:]
     else:
         raise ValueError("All values on a line should have the same type")
     return Linear_Expression(coeffs, offset)
 
 def gen_from_line(l):
-    t, coords = l[0], l[1:]
+    line = l.squeeze()
+    t, coords = line[0], line[1:]
     if is_int_long(coords):
         d = 1
     elif is_fraction(coords):
@@ -129,7 +131,9 @@ def add_ineq(line, poly):
     ex = ex_from_line(line)
     poly.add_constraint(ex >= 0)
 
-#Storage format type | points : type = 1 for points
+#Storage format type | points
+#type = 1 for points
+#type = 0 for rays
 def from_vrep(vrep):
     gs = Generator_System()
     for l in vrep:
