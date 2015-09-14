@@ -55,7 +55,3 @@ cdef extern from "gmp.h":
 
     # Cython doesn't want to take the address of an mpz_t
     cdef mpz_t* address_of_mpz "&"(mpz_t x)
-
-cdef extern from "mpz_pylong/mpz_pylong.h":
-    void mpz_set_PyIntOrLong(mpz_ptr z, PyObject* lsrc)
-    PyObject* mpz_get_PyLong(mpz_ptr z)

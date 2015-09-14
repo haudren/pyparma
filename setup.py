@@ -35,11 +35,10 @@ setup(
                   ),
         Extension("pyparma.ppl",
             sources=["pyparma/ppl.pyx",
-                     "pyparma/ppl_shim.cc",
-                     "pyparma/mpz_pylong/mpz_pylong.c"],
-                  libraries=["ppl", "gmpxx"],
-                  language="c++",
-                  extra_compile_args=["-fPIC"]
+                     "pyparma/ppl_shim.cc"],
+            libraries=["ppl", "gmpxx"],
+            language="c++",
+            extra_compile_args=["-fPIC"]
                   )
                 ]
 )
