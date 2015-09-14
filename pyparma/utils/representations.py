@@ -32,7 +32,12 @@ class Polyhedron(object):
         cs = self.poly.minimized_constraints()
         lines = []
         for c in cs:
-            lines.append([c.inhomogeneous_term()]+list(c.coefficients()))
+            if c.inhomogeneous_term() != 0:
+                lines.append([Fraction(1)] +
+                             [Fraction(coeff, c.inhomogeneous_term())
+                              for coeff in c.coefficients()])
+            else:
+                lines.append([c.inhomogeneous_term()]+list(c.coefficients()))
         return np.vstack(lines)
 
     def vrep(self):
