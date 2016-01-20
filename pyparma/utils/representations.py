@@ -57,7 +57,10 @@ class Polyhedron(object):
             else:
                 lines.append([t]+[Fraction(c, d)
                                   for c in g.coefficients()])
-        return np.vstack(lines)
+        if lines:
+            return np.vstack(lines)
+        else:
+            return np.array([])
 
     def add_ineq(self, line):
         add_ineq(line, self.poly)
