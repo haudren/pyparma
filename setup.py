@@ -17,7 +17,7 @@ classif = ['Development Status :: 3 - Alpha',
 
 setup(
     name="pyparma",
-    version="0.3.2",
+    version="0.3.3",
     description="Bindings to the parma polyhedra library,\
                  allowing to use double description from Python",
     long_description=long_desc,
@@ -40,5 +40,6 @@ setup(
             language="c++",
             extra_compile_args=["-fPIC"]
                   )
-                ]
+                ],
+    package_data={'pyparma': ['*.pxd', '*.hh', '*.cc', '*.cpp']}
 )
