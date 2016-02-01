@@ -1,3 +1,7 @@
+[![Build Status](https://travis-ci.org/haudren/pyparma.svg?branch=topic/travis)](https://travis-ci.org/haudren/pyparma)
+
+(_Note: travis build is failing because libppl is still not added to the whitelist_)
+
 These are Python bindings to the [Parma Polyhedra Library][1].
 They were extracted from the [sagemath][2] project, in order to be used in non-sage projects.
 This is GPL-licensed, as is Sagemath.
