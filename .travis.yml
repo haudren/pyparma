@@ -10,7 +10,7 @@ addons:
       - libgmp-dev
 
 # command to install dependencies
-install: "pip install -r requirements.txt"
+install: "cat requirements.txt | xargs -n 1 -L 1 pip install"
 # command to run tests
 script:
   - python setup.py install
