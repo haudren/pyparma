@@ -1,3 +1,4 @@
+future
 cython>=0.23
 pycddlib>=1.0.5
 numpy>=1.10.0
