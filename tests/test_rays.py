@@ -1,8 +1,11 @@
+from __future__ import print_function
+
 import pyparma
 from pyparma.utils.representations import gen_from_line, ex_from_line,\
                                           fractionize
 import cdd
 import numpy as np
+import sys
 from fractions import Fraction
 
 from nose.tools import raises
@@ -16,7 +19,7 @@ def test_from_points():
                   [1, 1, 0],
                   [1, 0, 1]])
 
-    mat = cdd.Matrix(A, number_type='fraction')
+    mat = cdd.Matrix(A.tolist(), number_type='fraction')
     mat.rep_type = cdd.RepType.GENERATOR
     cdd_poly = cdd.Polyhedron(mat)
 
@@ -31,7 +34,7 @@ def test_from_ineq():
                   [0, 0, 1],
                   [1, -1, 0]])
 
-    mat = cdd.Matrix(A, number_type='fraction')
+    mat = cdd.Matrix(A.tolist(), number_type='fraction')
     mat.rep_type = cdd.RepType.INEQUALITY
     mat.canonicalize()
     cdd_poly = cdd.Polyhedron(mat)
@@ -59,9 +62,14 @@ def test_mix_types():
     bignum = 2**128
     bigden = 2**64 - 1
     frac = Fraction(bignum, bigden)
-    lines = np.array([[1, 1, frac],
-                      [1, 1, 1L],
-                      [1, 1L, frac]])
+
+    if sys.version_info >= (3,):
+        lines = np.array([[1, 1, frac]])
+    else:
+        one_l = long(1)
+        lines = np.array([[1, 1, frac],
+                          [1, 1, one_l],
+                          [1, one_l, frac]])
 
     for l in lines:
         yield check_gen_mix_types, l
@@ -72,7 +80,7 @@ def test_gen_bignum():
     bigden = 2**64 - 1
     line = np.array([1, Fraction(bignum, bigden), Fraction(0)])
     p = gen_from_line(line)
-    result = (bignum, 0L)
+    result = (bignum, 0)
 
     assert(p.coefficients() == result)
     assert(p.divisor() == bigden)
@@ -122,6 +130,6 @@ def test_vs_cdd():
     hrep_parma = poly.hrep()
 
     assert(equal_sorted(np.array(mat), poly.vrep()))
-    print hrep_cdd
-    print hrep_parma
+    print(hrep_cdd)
+    print(hrep_parma)
     assert(equal_sorted(hrep_cdd, hrep_parma))

@@ -7,6 +7,8 @@ from mpz cimport mpz_t, mpz_init, mpz_set, mpz_set_si, mpz_get_si, mpz_ptr
 
 from pylong cimport mpz_get_pyintlong, mpz_set_pyintlong
 
+import numpy as np
+
 cdef extern from "gmpxx.h":
     cdef cppclass mpz_class:
         mpz_class()
@@ -2816,8 +2818,8 @@ cdef class Linear_Expression(object):
             self.thisptr = new PPL_Linear_Expression(e.thisptr[0])
             return
         try:
-            if isinstance(arg, int) or isinstance(arg, long):
-                mpz_set_pyintlong(self.temp, arg)
+            if isinstance(arg, (int, long, np.integer)):
+                mpz_set_pyintlong(self.temp, long(arg))
                 self.thisptr = new PPL_Linear_Expression(PPL_Coefficient(self.temp))
                 return
         except:
@@ -3147,10 +3149,10 @@ cdef class Linear_Expression(object):
         mpz_init(value)
         if isinstance(self, Linear_Expression):
             e = <Linear_Expression>self
-            mpz_set_pyintlong(value, other)
+            mpz_set_pyintlong(value, long(other))
         else:
             e = <Linear_Expression>other
-            mpz_set_pyintlong(value, self)
+            mpz_set_pyintlong(value, long(self))
 
         cdef Linear_Expression result = Linear_Expression()
         result.thisptr[0] = e.thisptr[0] * PPL_Coefficient(value)
