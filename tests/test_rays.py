@@ -25,7 +25,6 @@ def test_from_points():
 
     ineq = np.array(cdd_poly.get_inequalities())
 
-    print("ineqs: {}".format(ineq))
     ppl_poly = pyparma.Polyhedron(hrep=ineq)
 
     assert(equal_sorted(A, ppl_poly.vrep()))
@@ -60,17 +59,17 @@ def check_ex_mix_types(l):
     ex_from_line(l)
 
 def test_mix_types():
-    if sys.version_info > (3,):
-        one_l = 1
-    else:
-        one_l = long(1)
-
     bignum = 2**128
     bigden = 2**64 - 1
     frac = Fraction(bignum, bigden)
-    lines = np.array([[1, 1, frac],
-                      [1, 1, one_l],
-                      [1, one_l, frac]])
+
+    if sys.version_info >= (3,):
+        lines = np.array([[1, 1, frac]])
+    else:
+        one_l = long(1)
+        lines = np.array([[1, 1, frac],
+                          [1, 1, one_l],
+                          [1, one_l, frac]])
 
     for l in lines:
         yield check_gen_mix_types, l
