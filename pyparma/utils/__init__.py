@@ -1,4 +1,6 @@
 #!/usr/bin/env python2
 
-from representations import Polyhedron, fractionize,\
-                            intize, floatize, longize
+from __future__ import absolute_import
+
+from .representations import Polyhedron, fractionize,\
+                            intize, floatize, ex_from_line

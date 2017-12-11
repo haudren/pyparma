@@ -1,8 +1,14 @@
+from __future__ import print_function
+from builtins import zip
+from builtins import str
+from builtins import object
 from pyparma import C_Polyhedron, Constraint_System, Linear_Expression,\
                     Generator_System, point, ray
 
 import numpy as np
+import sys
 from fractions import Fraction
+from functools import reduce
 
 _is_fraction = np.vectorize(lambda x: isinstance(x, Fraction))
 _is_int = np.vectorize(lambda x: isinstance(x, int))
@@ -11,7 +17,6 @@ _is_long = np.vectorize(lambda x: isinstance(x, long))
 fractionize = np.vectorize(lambda x: Fraction(str(x)))
 floatize = np.vectorize(lambda x: float(x))
 intize = np.vectorize(lambda x: int(x))
-longize = np.vectorize(lambda x: long(x))
 
 class Polyhedron(object):
     def __init__(self, **kwargs):
@@ -72,7 +77,10 @@ class Polyhedron(object):
         return Polyhedron(poly=C_Polyhedron(self.poly))
 
 def is_int_long(array):
-    return _is_int(array).all() or _is_long(array).all()
+    if sys.version_info < (3,):
+        return _is_int(array).all() or _is_long(array).all()
+    else:
+        return _is_int(array).all()
 
 def is_fraction(array):
     return _is_fraction(array).all()
@@ -104,7 +112,7 @@ def ex_from_line(l):
         offset, coeffs = scaled[0], scaled[1:]
     else:
         raise ValueError("All values on a line should have the same type")
-    return Linear_Expression(coeffs, offset)
+    return Linear_Expression(coeffs, int(offset))
 
 def gen_from_line(l):
     line = l.squeeze()
